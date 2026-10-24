@@ -1,1 +1,109 @@
 
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Batalha da Live</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:15px;background:#090b12;color:white;font-family:Arial,sans-serif;text-align:center}
+h1{font-size:25px;color:#ffca52}
+.timer{background:#191e2b;border-radius:18px;padding:15px;margin:15px auto;max-width:350px}
+#clock{font-size:44px;font-weight:bold;margin:10px}
+button{border:0;border-radius:10px;padding:12px;margin:4px;color:white;background:#343d50;font-weight:bold}
+.green{background:#16b85b}.red{background:#ff3348}
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.team{padding:12px 5px;border-radius:16px;background:#191e2b;border-top:6px solid var(--c)}
+.name{font-size:clamp(16px,4vw,24px);font-weight:bold;overflow-wrap:anywhere}
+.score{font-size:60px;font-weight:bold}
+.bar{height:9px;background:#343d50;border-radius:9px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--c)}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+input{width:90%;padding:9px;margin:6px;background:#090b12;color:white;border:1px solid #555;border-radius:8px}
+</style>
+</head>
+<body>
+<h1>⚔️ BATALHA DA LIVE</h1>
+<div class="timer">
+<div>TEMPO DA RODADA</div>
+<div id="clock">02:00</div>
+<button onclick="start()">▶ INICIAR</button>
+<button onclick="pause()">⏸ PAUSAR</button>
+<button onclick="resetTime()">↻ REINICIAR</button>
+</div>
+<h3 id="status">RODADA PRONTA</h3>
+<div class="teams">
+<div class="team" style="--c:#16b85b">
+<div class="name" id="show1">FLÁVIO</div>
+<div class="score" id="s1">0</div>
+<div>PONTOS</div><div class="bar"><div class="fill" id="b1"></div></div>
+<div class="controls">
+<button class="green" onclick="add(1,1)">🌹 +1</button>
+<button class="green" onclick="add(1,10)">+10</button>
+<button onclick="add(1,-1)">−1</button>
+<button onclick="add(1,-10)">−10</button>
+</div>
+</div>
+<div class="team" style="--c:#ff3348">
+<div class="name" id="show2">LULA</div>
+<div class="score" id="s2">0</div>
+<div>PONTOS</div><div class="bar"><div class="fill" id="b2"></div></div>
+<div class="controls">
+<button class="red" onclick="add(2,1)">🌹 +1</button>
+<button class="red" onclick="add(2,10)">+10</button>
+<button onclick="add(2,-1)">−1</button>
+<button onclick="add(2,-10)">−10</button>
+</div>
+</div>
+</div>
+<p>Nome do time verde</p>
+<input id="n1" value="FLÁVIO" maxlength="18" oninput="render()">
+<p>Nome do time vermelho</p>
+<input id="n2" value="LULA" maxlength="18" oninput="render()">
+<p>
+<button onclick="setTime(60)">1 minuto</button>
+<button onclick="setTime(120)">2 minutos</button>
+<button onclick="setTime(180)">3 minutos</button>
+</p>
+<button onclick="clearScores()">ZERAR PLACAR</button>
+<h3 id="result">A batalha vai começar!</h3>
+<p style="color:#aaa;font-size:12px">Versão demonstrativa. Os presentes reais do TikTok ainda não estão conectados.</p>
+<script>
+let points=[0,0],duration=120,left=120,timer=null;
+function fmt(n){return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
+function render(){
+ document.getElementById('s1').textContent=points[0];
+ document.getElementById('s2').textContent=points[1];
+ document.getElementById('clock').textContent=fmt(left);
+ document.getElementById('show1').textContent=document.getElementById('n1').value||'TIME VERDE';
+ document.getElementById('show2').textContent=document.getElementById('n2').value||'TIME VERMELHO';
+ let m=Math.max(1,...points);
+ document.getElementById('b1').style.width=points[0]/m*100+'%';
+ document.getElementById('b2').style.width=points[1]/m*100+'%';
+}
+function add(t,n){
+ points[t-1]=Math.max(0,points[t-1]+n);render();
+ document.getElementById('result').textContent=points[0]+' × '+points[1];
+}
+function pause(){clearInterval(timer);timer=null;document.getElementById('status').textContent='RODADA PAUSADA'}
+function start(){
+ if(timer)return;
+ if(left<=0)left=duration;
+ document.getElementById('status').textContent='RODADA EM ANDAMENTO';
+ timer=setInterval(()=>{
+ left--;render();
+ if(left<=0){
+ pause();document.getElementById('status').textContent='RODADA ENCERRADA';
+ document.getElementById('result').textContent=points[0]===points[1]?'EMPATE!':points[0]>points[1]?'VENCEU '+document.getElementById('show1').textContent:'VENCEU '+document.getElementById('show2').textContent;
+ }
+ },1000);
+}
+function setTime(n){pause();duration=n;left=n;document.getElementById('status').textContent='RODADA PRONTA';render()}
+function resetTime(){setTime(duration)}
+function clearScores(){points=[0,0];render();document.getElementById('result').textContent='PLACAR ZERADO'}
+render();
+</script>
+</body>
+</html>
+
